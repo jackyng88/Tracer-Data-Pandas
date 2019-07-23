@@ -1,0 +1,5 @@
+1. how many campaigns spent on more than 4 days?
+- 4499 campaigns
+- Runtime (0.08600497245788574 seconds)
+
+2. 
