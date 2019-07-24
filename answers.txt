@@ -2,4 +2,6 @@
 - 4499 campaigns
 - Runtime (0.08600497245788574 seconds)
 
-2. 
+2. which sources reported more "junk" than "noise"?
+
+

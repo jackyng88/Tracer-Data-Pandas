@@ -33,7 +33,9 @@ def source_reporting_action(dataframe, action1, action2):
     start_time = time.time()
     #answer = {}
     temp = pd.DataFrame(dataframe['actions'])
-    #answer = json_normalize(temp)
+    #result = list(temp[temp.action == 'views'].T.to_dict().values())
+    
+    #result = pd.DataFrame.from_records(temp).apply(pd.Series)
 
 
     end_time = time.time()
@@ -47,5 +49,6 @@ def source_reporting_action(dataframe, action1, action2):
 
 #print(source_reporting_action(df_ad, 'junk', 'noise'))
 answer, time = source_reporting_action(df_ad, 'junk', 'noise')
+print(answer)
 #print(type(answer))
-# answer.to_csv('test.txt')
+answer.to_csv('test.txt')
