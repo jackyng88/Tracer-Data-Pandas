@@ -131,7 +131,9 @@ def source_action_location(dataframe1, dataframe2, source, action, location):
     we search through dataframe2 for those rows of the source parameter 
     that are of the action parameter.
     '''
-    
+    result = 0
+
+    return result
 
 #print(source_reporting_action(df_ad, 'junk', 'noise'))
 answer, run_time = source_action_reports(df_ad, 'conversions', 'views')
