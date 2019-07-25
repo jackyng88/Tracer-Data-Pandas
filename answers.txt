@@ -9,4 +9,6 @@
 - Runtime (3.834219217300415 seconds)
 
 3. how many source B conversions were there for campaigns targeting NY?
-- 
+- 415 source B conversions
+- Function used - source_action_location()
+- Runtime (0.0740041732788086 seconds)
