@@ -81,7 +81,7 @@ def source_action_reports(dataframe, action1, action2):
     sources_list = dataframe_action_occurences(temp_df, action1, action2)
     #sources_list = Parser(temp_df, action1, action2)
     #new_parser = Parser(temp_df, 'junk', 'noise')
-    #sources_list = new_parser.run(8)
+    #sources_list = new_parser.run(4)
     new_df = pd.DataFrame(sources_list)
 
     # This step sorts the columns in alphabetical order with the 'actions' 
@@ -210,6 +210,28 @@ def state_hair_cpm(dataframe1, dataframe2):
 #print(source_action_location(df_campaign, df_ad, 'B', 'conversions', 'NY'))
 #print(total_ad_cost_per_action(df_ad, 'video', 'views'))
 
+def function_parser(dataframe, *actions):
+    start_time = timer()
+    new_parser = Parser(dataframe, *actions)
+    new_list = new_parser.run()
+    end_time = timer()
 
+    return end_time - start_time
+
+def function_iter(dataframe, *actions):
+    start_time = timer()
+    source_list = []
+    for dict_row in dataframe.itertuples(index=False):
+        for dict_entry in dict_row:
+            temp_json_data = json.loads(dict_entry)
+            for dict_entry in temp_json_data:
+                if dict_entry['action'] in actions:
+                    source_list.append(dict_entry)
+    end_time = timer()
+
+    return end_time - start_time
 if __name__ == "__main__":
-    print(source_action_reports(df_ad, 'junk', 'noise'))
+    #print(source_action_reports(df_ad, 'junk', 'noise'))
+    temp_df = pd.DataFrame(df_ad['actions'])
+    print(function_parser(temp_df, 'views', 'clicks', 'conversions'))
+    print(function_iter(temp_df, 'views', 'clicks', 'conversions'))
