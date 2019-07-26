@@ -4,6 +4,29 @@ import json
 Python file for helper functions that get called from main.py
 '''
 
+
+def dataframe_action_occurences(dataframe, *actions):
+    # Function that iterates dataframe with variable amount of arguments which
+    # are actions to check rows. The returned sources_list is a list of the
+    # sources that report an instance of 'action' specified in the *args list.
+    sources_list = []
+    
+    for dict_row in dataframe.itertuples(index=False):
+        # Iterate through the elements in the Pandas object. Each dict_entry
+        # becomes a string.
+        for dict_entry in dict_row:
+            # Since each dict_entry is a string we need to convert that to a
+            # dictionary object using json.loads() function.
+            temp_json_data = json.loads(dict_entry)
+            for dict_entry in temp_json_data:
+                # As we iterate through the new dictionary objects we check to
+                # see if these dictionaries fulfill the condition of whether
+                # they are of in the *args list.
+                if dict_entry['action'] in actions:
+                    # If any actions are a hit, append to sources_list.
+                    sources_list.append(dict_entry)
+    return sources_list
+
 def compute_greater_occurrences(dataframe, action1, action2):
     '''
     Helper function that gets called by source_greater_actions() that returns
@@ -18,8 +41,9 @@ def compute_greater_occurrences(dataframe, action1, action2):
     {'A': {'junk': 24932, 'noise': 24990}, 
     'B': {'junk': 24939, 'noise': 24980}}
 
-    .iloc[:,:-1] takes all the single letter columns only, remember we sorted
-    the columns and had the 'actions' column appear at the very end.
+    .iloc[:,:-1] takes all the single letter columns only, since we sorted
+    the columns and had the 'actions' column appear at the very end. We do this
+    otherwise 'action' will appear in our new_answer dictionary as a key.
 
     .notnull() converts the sparse matrix-like DataFrame we have to have values
     of False for NaN and True when there they are notnull().
@@ -51,7 +75,6 @@ def compute_greater_occurrences(dataframe, action1, action2):
 
     return result
 
-
 def campaigns_by_location(dataframe, location):
     '''
     Function that looks through the passed in DataFrame by location.
@@ -80,24 +103,3 @@ def compute_source_action_count(dataframe, source, action):
             result += 1
 
     return result
-
-def dataframe_action_occurences(dataframe, *args):
-    # Function that iterates dataframe with variable amount of arguments which
-    # are actions to check rows.
-    sources_list = []
-
-    for dict_row in dataframe.itertuples(index=False):
-        # Iterate through the elements in the Pandas object. Each dict_entry
-        # becomes a string.
-        for dict_entry in dict_row:
-            # Since each dict_entry is a string we need to convert that to a
-            # dictionary object using json.loads() function.
-            temp_json_data = json.loads(dict_entry)
-            for dict_entry in temp_json_data:
-                # As we iterate through the new dictionary objects we check to
-                # see if these dictionaries fulfill the condition of whether
-                # they are of in the *args list.
-                if dict_entry['action'] in args:
-                    # If either actions are a hit, append to sources_list.
-                    sources_list.append(dict_entry)
-    return sources_list

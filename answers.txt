@@ -3,12 +3,24 @@
 - Function used - campaign_spending_days()
 - Runtime (0.08600497245788574 seconds)
 
+
 2. which sources reported more "junk" than "noise"?
 - ['C', 'H', 'J', 'K']
 - Function used - source_action_reports()
 - Runtime (3.834219217300415 seconds)
 
+
 3. how many source B conversions were there for campaigns targeting NY?
 - 415 source B conversions
 - Function used - source_action_location()
 - Runtime (0.0740041732788086 seconds)
+
+
+4. what was the total cost per view for all ads of type video, 
+    truncated to two decimals?
+- 2362681.76 is the total cost per view
+- Function used - total_ad_cost_per_action()
+- Runtime (1.7080976963043213 seconds)
+
+
+5. what combination of state and hair color had the best (lowest) CPM?
