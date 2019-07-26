@@ -1,37 +1,11 @@
 import pandas as pd
 import numpy as np
-import time
 import json
 from timeit import default_timer as timer
-import timeit
+from itertools import chain
 
 from helper import *
 
-import multiprocessing
-from itertools import chain
-
-class Parser:
-
-    def __init__(self, dataframe, *actions):
-        self.dataframe = dataframe
-        self.actions = actions
-
-    def helper(self, idx0, idxf):
-        result = []
-        for datapoint in chain(*self.dataframe.loc[idx0:idxf, 'actions'].apply(json.loads)):
-            if datapoint['action'] in self.actions:
-                result.append(datapoint)
-        return result
-
-    def run(self, P=1):
-        N = self.dataframe.shape[0]
-        if P > 1:
-            with multiprocessing.Pool(processes=P) as pool:
-                n = N // P
-                results = pool.starmap(self.helper, ([n*i, min(n*(i+1)-1, N)] for i in range(P)))
-        else:
-            results = [self.helper(0, N)]
-        return list(chain(*results))
 
 # df = DataFrame, a pandas object. Loading the two datasets.
 df_campaign = pd.read_csv('source1.csv')
@@ -39,21 +13,24 @@ df_ad = pd.read_csv('source2.csv')
 
 # Question 1
 def campaign_spending_days(dataframe, spend_amt, days):
-    # Function that returns a numpy array of unique campaign_id's based on the
-    # passed in dataframe. Checks to see if spend_amt parameter is at least 
-    # this amount, as well as occurred on at least this many days.
-    start_time = time.time()
-    # temp1 initially looks for rows where spend > 0, then it creates a grouping
-    # between campaign_id and date and counts instances of them.
+    """ Function that returns a numpy array of unique campaign_ids based on the
+    passed in dataframe. Checks to see if spend_amt parameter is at least 
+    this amount, as well as occurred on at least this many days.
+    """
+    start_time = timer()
+
+    # temp_df initially looks for rows where spend > 0, then it creates a 
+    # grouping between campaign_id and date and counts instances of them.
     temp_df = (dataframe[dataframe['spend'] > spend_amt]
               .groupby(['campaign_id', 'date']).size().reset_index()
               .rename(columns={0:'count'}))
+
     # answer is a numpy array of unique campaign_id's that have counts > 
     # the days parameter. Since temp_df is a dataframe of campaign_id and dates
     # where they spent more than 0 and counting the number of times those
     # are met. 
     answer = temp_df[temp_df['count'] > days].campaign_id.unique()
-    end_time = time.time()
+    end_time = timer()
     run_time = end_time - start_time
 
     # Optional f-string print. Un-comment for some readability. Can also change
@@ -67,21 +44,16 @@ def campaign_spending_days(dataframe, spend_amt, days):
 
 # Question 2
 def source_action_reports(dataframe, action1, action2):
-    '''
-    Function that calculates which sources reported more of action1 than 
+    """ Function that calculates which sources reported more of action1 than 
     action2. The returned result at the very end is a list of strings of said
     sources.
-    '''
-    #start_time = time.time()
+    """
     start_time = timer()
     temp_df = pd.DataFrame(dataframe['actions'])
-
+ 
     # sources_list will be a list that contains a list of dictionaries that 
     # fulfill the function parameter requirements.
     sources_list = dataframe_action_occurences(temp_df, action1, action2)
-    #sources_list = Parser(temp_df, action1, action2)
-    #new_parser = Parser(temp_df, 'junk', 'noise')
-    #sources_list = new_parser.run(4)
     new_df = pd.DataFrame(sources_list)
 
     # This step sorts the columns in alphabetical order with the 'actions' 
@@ -95,7 +67,6 @@ def source_action_reports(dataframe, action1, action2):
     # Call the compute_greater_occurrences helper function.
     result = compute_greater_occurrences(new_df, action1, action2)
 
-    #end_time = time.time()
     end_time = timer()
     run_time = end_time - start_time
 
@@ -104,17 +75,18 @@ def source_action_reports(dataframe, action1, action2):
 
     return result, run_time
 
+
 # Question 3
 def source_action_location(dataframe1, dataframe2, source, action, location):
-    '''
-    Function that takes dataframe1 and finds a list of campaign_id's that 
+    """ Function that takes dataframe1 and finds a list of campaign_id's that 
     targetted the location parameter. With the list of campaign_id's 
     we search through dataframe2 for those rows of the source parameter 
     that are of the action parameter.
     Dataframe1 - dataset with campaign_id, audience, impression columns
-    Datafram2 - dataset with ad_id, ad_type, campaign_id, date, spend, actions
-    '''
-    start_time = time.time()
+    Dataframe2 - dataset with ad_id, ad_type, campaign_id, date, spend, actions
+    """
+
+    start_time = timer()
     result = 0
     campaign_ids = campaigns_by_location(dataframe1, location)
 
@@ -128,30 +100,25 @@ def source_action_location(dataframe1, dataframe2, source, action, location):
 
     # Call the compute_source_action_count() helper function.
     result = compute_source_action_count(temp_df, source, action)
-
-    end_time = time.time()
+    end_time = timer()
     run_time = end_time - start_time
 
     # Optional f-string print for readability.
     # print(f'Source {source} had {result} {action} for {location}')
-
     return result, run_time
+
 
 # Question4
 def total_ad_cost_per_action(dataframe, ad_type, *actions):
-    # Function that calculates total cost per view for all adds of type video
-    # truncated to two decimal places.
-    # cost per view = video spend / video views
-    start_time = time.time()
+    """ Function that calculates total cost per view for all adds of type video
+    truncated to two decimal places.
+    cost per view = video spend / video views
+    """
+    
+    start_time = timer()
     cpa = 0
     total_cpa = 0
-    '''algorithm - 
-    1. search dataframe (df_ad) for where those rows where 'action': 'views'.
-    2. Get only those dictionaries with 'action': 'views'
-    3. calculate cpv by doing spend/key value(single letter key)
-    '''
 
-    # enforce if 'view' is in *actions list then ad_type must be type 'video'
     if 'views' in actions and ad_type != 'video':
         print('error')
     
@@ -186,52 +153,64 @@ def total_ad_cost_per_action(dataframe, ad_type, *actions):
                     cpa = spend_amt / action_count
                     total_cpa += cpa
                 
-    end_time = time.time()
+    end_time = timer()
     run_time = end_time - start_time
 
     #print(f'The total cost per {actions} was {total_cpa:.2f} for ads of type {ad_type}')
-
     # Returns f-string literal of total_cpa rounded to two decimal places.
     return f'{total_cpa:.2f}', run_time
 
+
 # Question 5
-def state_hair_cpm(dataframe1, dataframe2):
-    # Function to return the state and hair with the best CPM. 
+def state_hair_cpm(dataframe1, dataframe2, order=True):
+    """Function to return the state and hair with the best CPM. 
     # CPM = spend / impressions * 1000
-
-
-    cpm = 0
-
-    return cpm
-
-
-#print(campaign_spending_days(df_ad, 0, 4))
-#print(source_action_reports(df_ad, 'junk', 'noise'))
-#print(source_action_location(df_campaign, df_ad, 'B', 'conversions', 'NY'))
-#print(total_ad_cost_per_action(df_ad, 'video', 'views'))
-
-def function_parser(dataframe, *actions):
+    """
     start_time = timer()
-    new_parser = Parser(dataframe, *actions)
-    new_list = new_parser.run()
+
+    # campaign_total_spend_df is just campaign_id's having their spend values
+    # summed up.
+    campaign_total_spend_df = (dataframe2.groupby(['campaign_id'])['spend']
+                            .sum().reset_index())
+    # We drop the rows with spend values that are zero.
+    campaign_total_spend_df = campaign_total_spend_df[~(campaign_total_spend_df == 0).any(axis=1)]
+    
+    # temp_df is a DataFrame that is the merge of dataframe1 and
+    # campaign_total_spend_df. The end result is the cumulative spend column
+    # values are with their respective campaign_id's by merging on campaign_id.
+    temp_df = pd.merge(dataframe1, campaign_total_spend_df, on="campaign_id")
+
+    # Vectorization with numpy arrays by invoking .values, without .values 
+    # it is just vectorization with a Pandas series (slightly slower).
+    temp_df['cpm'] = (calculate_cpm(temp_df['spend'].values, 
+                                    temp_df['impressions'].values))
+    # We sort temp_df in the order specified in the function parameters. By
+    # default, it sorts by ascending but upon invoking of the function if we
+    # specify false, it will sort by descending order.
+    temp_df.sort_values(by='cpm', ascending=order, inplace=True)
+
+    # Since the DataFrame is sorted with either the min or max at the top-most
+    # row we grab the first row and the state/hair combo from audience.
+    state_hair_combo =  temp_df.iloc[0]['audience']
     end_time = timer()
+    run_time = end_time - start_time
 
-    return end_time - start_time
+    return state_hair_combo, run_time
 
-def function_iter(dataframe, *actions):
-    start_time = timer()
-    source_list = []
-    for dict_row in dataframe.itertuples(index=False):
-        for dict_entry in dict_row:
-            temp_json_data = json.loads(dict_entry)
-            for dict_entry in temp_json_data:
-                if dict_entry['action'] in actions:
-                    source_list.append(dict_entry)
-    end_time = timer()
 
-    return end_time - start_time
+
 if __name__ == "__main__":
-    #print(source_action_reports(df_ad, 'junk', 'noise'))
-    temp_df = pd.DataFrame(df_ad['actions'])
-    print(function_parser(temp_df, 'views', 'clicks', 'conversions'))
-    print(function_iter(temp_df, 'views', 'clicks', 'conversions'))
+    # Question 1
+    print(campaign_spending_days(df_ad, 0, 4))
+
+    # Question 2
+    print(source_action_reports(df_ad, 'junk', 'noise'))
+
+    # Question 3
+    print(source_action_location(df_campaign, df_ad, 'B', 'conversions', 'NY'))
+
+    # Question 4
+    print(total_ad_cost_per_action(df_ad, 'video', 'views'))
+
+    # Question 5
+    print(state_hair_cpm(df_campaign, df_ad))

@@ -1,59 +1,50 @@
 import json
-
+from itertools import chain
 '''
 Python file for helper functions that get called from main.py
 '''
 
 
+def dataframe_action_occurences(dataframe, *args):
+    """ Helper function that gets called to create a sources list by converting
+    datapoint into dictionaries with json.loads
+    """
+    sources_list = []
+    for datapoint in chain(*dataframe.loc[:, 'actions']
+                           .apply(json.loads)):
+        if datapoint['action'] in args:
+            sources_list.append(datapoint)
+    return sources_list
+
+
+
+'''
+Older version - not as fast/efficient
 def dataframe_action_occurences(dataframe, *actions):
-    # Function that iterates dataframe with variable amount of arguments which
-    # are actions to check rows. The returned sources_list is a list of the
-    # sources that report an instance of 'action' specified in the *args list.
     sources_list = []
     
     for dict_row in dataframe.itertuples(index=False):
-        # Iterate through the elements in the Pandas object. Each dict_entry
-        # becomes a string.
         for dict_entry in dict_row:
-            # Since each dict_entry is a string we need to convert that to a
-            # dictionary object using json.loads() function.
             temp_json_data = json.loads(dict_entry)
             for dict_entry in temp_json_data:
-                # As we iterate through the new dictionary objects we check to
-                # see if these dictionaries fulfill the condition of whether
-                # they are of in the *args list.
                 if dict_entry['action'] in actions:
-                    # If any actions are a hit, append to sources_list.
                     sources_list.append(dict_entry)
     return sources_list
+'''
 
 def compute_greater_occurrences(dataframe, action1, action2):
-    '''
-    Helper function that gets called by source_greater_actions() that returns
+    """ Helper function that gets called by source_greater_actions() that returns
     a list of strings.
-    '''
+    """
     result = []
 
-    ''' new_answer is a dictionary of single letter 'source' keys, i.e. 
+    """ new_answer is a dictionary of single letter 'source' keys, i.e. 
     'A', 'B', 'C', etc. The values of the single letter key is another
     dictionary containing action1 and action2 as key values. With the actions
     having the counts as values. Example - 
     {'A': {'junk': 24932, 'noise': 24990}, 
     'B': {'junk': 24939, 'noise': 24980}}
-
-    .iloc[:,:-1] takes all the single letter columns only, since we sorted
-    the columns and had the 'actions' column appear at the very end. We do this
-    otherwise 'action' will appear in our new_answer dictionary as a key.
-
-    .notnull() converts the sparse matrix-like DataFrame we have to have values
-    of False for NaN and True when there they are notnull().
-
-    .astype(int) converts the True and False values into 1 or 1.
-
-    We groupby(dataframe.action) so we can sum up these pairings.
-
-    Lastly we call the built-in to_dict() function to convert it to a dict.
-    '''
+    """
     new_answer = (dataframe.iloc[:, :-1].notnull().astype(int)
                  .groupby(dataframe.action).sum().to_dict())
 
@@ -61,7 +52,7 @@ def compute_greater_occurrences(dataframe, action1, action2):
     # as value, we iterate through the keys themselves.
     for letter in new_answer:
         # temp contains the dictionary that we retrieved that is of the form
-        # {'junk': 24932, 'noise': 24990} for instance.
+        # {'junk': 24932, 'noise': 24990} for example.
         temp = new_answer.get(letter)
         # Get the associated counts in the dictionary object for the two
         # actions.
@@ -75,10 +66,9 @@ def compute_greater_occurrences(dataframe, action1, action2):
 
     return result
 
+
 def campaigns_by_location(dataframe, location):
-    '''
-    Function that looks through the passed in DataFrame by location.
-    '''
+    """ Function that looks through the passed in DataFrame by location. """
     campaign_ids = []
     
     # temp_df is a copy of the dataframe where we drop the 'impressions' col
@@ -91,15 +81,25 @@ def campaigns_by_location(dataframe, location):
 
     return campaign_ids
 
+
 def compute_source_action_count(dataframe, source, action):
-    # Calculate the number of times a source reports an action by iterating
-    # through the DataFrame.
+    """ Calculate the number of times a source reports an action by iterating
+    through the DataFrame.
+    """
     result = 0
     sources_list = dataframe_action_occurences(dataframe, action)
-
+    
     # iterate through sources_list and count the occurences of the source 'key'
     for dict_entry in sources_list:
         if source in dict_entry.keys():
             result += 1
 
     return result
+
+
+def calculate_cpm(spend, impressions):
+    """ Helper function that gets invoked to calculate CPM."""
+
+    cpm = (spend / impressions) * 1000
+    return cpm
+

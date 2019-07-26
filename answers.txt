@@ -7,13 +7,13 @@
 2. which sources reported more "junk" than "noise"?
 - ['C', 'H', 'J', 'K']
 - Function used - source_action_reports()
-- Runtime (3.834219217300415 seconds)
+- Runtime (3.6224980319999998 seconds)
 
 
 3. how many source B conversions were there for campaigns targeting NY?
 - 415 source B conversions
 - Function used - source_action_location()
-- Runtime (0.0740041732788086 seconds)
+- Runtime (0.06780298299999998 seconds)
 
 
 4. what was the total cost per view for all ads of type video, 
@@ -24,3 +24,6 @@
 
 
 5. what combination of state and hair color had the best (lowest) CPM?
+- MS_orange (Mississippi and Orange). I had to make some assumptions as I disregarded the campaigns that had spending value zero as the CPM would just be zero also.
+- Function used - state_hair_cpm()
+- Runtime (0.05987182400000002 seconds)
