@@ -38,6 +38,7 @@
 3. Currently the outputs are tuples in the form of (answer, run_time). If you want more readable/English outputs go into the respective functions and un-comment the commented Python f-string literals.
 
 4. You can customize a few function parameters if you go to the bottom of main.py
+
     A. Question 1 - You can change the values for the variables spend_threshold and day_threshold. Currently the function will look for those values that have spent more than spend_threshold AND on more than day_threshold days. By default they are at 0 and 4 days respectively.
     
     B. Question 2 - Since this is a comparison function you can change the values of larger_action and smaller_action. The function will return those sources which reported more of larger_action than those of smaller_action. By default they are 'junk' and 'noise' respectively.
