@@ -11,11 +11,13 @@
 2. From terminal/powershell/command-prompt run command - 
 
     python -m venv venv
+    
     You can replace the second venv with whatever name you want for your virtual environment.
     
 3. Activate your virtual environment by running command - 
 
     (Windows) venv\Scripts\activate
+    
     (Mac/Linux) source venv/bin/activate
     
 4. Install dependencies with (make sure you're in the folder with requirements.txt) - 
