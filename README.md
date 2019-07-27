@@ -9,20 +9,24 @@
 1. Browse to the folder containing the code.
 
 2. From terminal/powershell/command-prompt run command - 
+
     python -m venv venv
     You can replace the second venv with whatever name you want for your virtual environment.
     
 3. Activate your virtual environment by running command - 
+
     (Windows) venv\Scripts\activate
     (Mac/Linux) source venv/bin/activate
     
 4. Install dependencies with (make sure you're in the folder with requirements.txt) - 
+
     pip install -r requirements.txt
     
 
 ### Installing Dependencies (if you don't want to create a virtual environment) 
 
 1. Install dependencies with (make sure you're in the folder with requirements.txt) - 
+
     pip install -r requirements.txt
     
 
